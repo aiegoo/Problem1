@@ -182,9 +182,95 @@ function initializeImageCopy() {
 
 // ============ END STEP 3 ============
 
+// ============ STEP 4: COMMENT SYSTEM ============
+
+// Handle comment form submission
+function handleCommentSubmit(event) {
+  event.preventDefault();
+  
+  const form = event.target;
+  if (form.classList.contains('comment-form')) {
+    const input = form.querySelector('input[type="text"]');
+    const commentText = input.value.trim();
+    
+    if (commentText === '') {
+      alert('내용을 입력해주세요.');
+      return;
+    }
+    
+    const imageCard = form.closest('.image-card');
+    const imageId = parseInt(imageCard.dataset.id);
+    
+    // Check if image already has 5 comments
+    const currentComments = appState.comments[imageId] || [];
+    if (currentComments.length >= 5) {
+      alert('하나의 이미지에는 5개의 댓글만 추가할 수 있습니다.');
+      return;
+    }
+    
+    // Add comment to state
+    addComment(imageId, commentText);
+    
+    // Clear input
+    input.value = '';
+    
+    // Update comments display
+    updateCommentsDisplay(imageId);
+  }
+}
+
+// Add comment to state with Korean timestamp
+function addComment(imageId, commentText) {
+  if (!appState.comments[imageId]) {
+    appState.comments[imageId] = [];
+  }
+  
+  const timestamp = generateKoreanTimestamp();
+  const comment = {
+    text: commentText,
+    timestamp: timestamp
+  };
+  
+  appState.comments[imageId].push(comment);
+}
+
+// Generate Korean timestamp format: (O월 O일 00:00)
+function generateKoreanTimestamp() {
+  const now = new Date();
+  const month = now.getMonth() + 1;
+  const date = now.getDate();
+  const hours = now.getHours().toString().padStart(2, '0');
+  const minutes = now.getMinutes().toString().padStart(2, '0');
+  
+  return `(${month}월 ${date}일 ${hours}:${minutes})`;
+}
+
+// Update comments display for a specific image
+function updateCommentsDisplay(imageId) {
+  const imageCard = document.querySelector(`.image-card[data-id="${imageId}"]`);
+  if (!imageCard) return;
+  
+  const commentsContainer = imageCard.querySelector('.comments');
+  const comments = appState.comments[imageId] || [];
+  
+  const commentsHTML = comments
+    .map(comment => `<li>${comment.text} <span class="comment-timestamp">${comment.timestamp}</span></li>`)
+    .join('');
+  
+  commentsContainer.innerHTML = commentsHTML;
+}
+
+// Initialize comment system
+function initializeComments() {
+  imageContainer.addEventListener('submit', handleCommentSubmit);
+}
+
+// ============ END STEP 4 ============
+
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
   initializeSearch();
   initializeImageCopy();
+  initializeComments();
 });
