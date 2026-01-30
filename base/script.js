@@ -80,5 +80,50 @@ async function initializeApp() {
   renderImageCards(appState.currentImages);
 }
 
+// ============ STEP 2: IMAGE SEARCH FUNCTIONALITY ============
+
+// Get search form elements
+const searchForm = document.getElementById('search-form');
+const searchInput = searchForm.querySelector('input[type="text"]');
+
+// Handle search form submission
+function handleSearch(event) {
+  event.preventDefault();
+  
+  const searchTerm = searchInput.value.trim();
+  
+  if (searchTerm === '') {
+    // Show all images if search is empty
+    appState.currentImages = [...appState.originalImages];
+  } else {
+    // Filter images based on search terms
+    const searchTerms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+    appState.currentImages = filterImages(appState.originalImages, searchTerms);
+  }
+  
+  // Re-render filtered results
+  renderImageCards(appState.currentImages);
+}
+
+// Filter images based on search terms (title OR description contains ALL terms)
+function filterImages(images, searchTerms) {
+  return images.filter(image => {
+    return searchTerms.every(term => 
+      image.title.toLowerCase().includes(term) ||
+      image.description.toLowerCase().includes(term)
+    );
+  });
+}
+
+// Initialize search functionality
+function initializeSearch() {
+  searchForm.addEventListener('submit', handleSearch);
+}
+
+// ============ END STEP 2 ============
+
 // Start the application when DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeApp);
+document.addEventListener('DOMContentLoaded', () => {
+  initializeApp();
+  initializeSearch();
+});
