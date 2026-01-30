@@ -152,3 +152,223 @@ header button:hover {
 .image-card img:hover {
   transform: scale(1.05);
 }
+
+/* ============ ADDITIONAL OPTIMIZATIONS ============ */
+
+/* 1. 반응형 디자인 개선 */
+@media (max-width: 768px) {
+  header {
+    padding: 15px;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  header h1 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+  
+  header form {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  header input {
+    flex: 1;
+    max-width: 300px;
+  }
+  
+  .image-card h3 {
+    font-size: 1.1rem;
+  }
+  
+  .image-card p {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  .comment-form textarea {
+    min-height: 80px;
+  }
+  
+  .comment {
+    padding: 12px;
+  }
+  
+  .like-button, .comment-form button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  header {
+    padding: 10px;
+  }
+  
+  header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .image-card {
+    border-radius: 6px;
+  }
+  
+  .image-card img {
+    border-radius: 6px 6px 0 0;
+  }
+  
+  .comment-form {
+    gap: 8px;
+  }
+}
+
+/* 2. 접근성 개선 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.image-card:focus {
+  outline: 3px solid #007bff;
+  outline-offset: 2px;
+}
+
+header input:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+.like-button:focus,
+.comment-form button:focus,
+header button:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .image-card {
+    border: 2px solid #000;
+  }
+  
+  .like-button.liked {
+    background-color: #000;
+    color: #fff;
+  }
+  
+  header button {
+    border: 2px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .image-card img {
+    transition: none;
+  }
+  
+  .image-card img:hover {
+    transform: none;
+  }
+  
+  header button {
+    transition: none;
+  }
+  
+  .comment-form button {
+    transition: none;
+  }
+}
+
+/* 3. 에러 처리 UI 스타일 */
+.network-status {
+  padding: 12px 20px;
+  text-align: center;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.network-status.online {
+  background-color: #d4edda;
+  color: #155724;
+  border-bottom: 2px solid #c3e6cb;
+}
+
+.network-status.offline {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-bottom: 2px solid #f5c6cb;
+}
+
+.error-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background-color: #f44336;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 4px;
+  max-width: 300px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* 4. 성능 최적화 스타일 */
+.image-card img {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+#imageContainer {
+  contain: layout style paint;
+}
+
+/* Print styles */
+@media print {
+  header form,
+  .like-button,
+  .comment-form {
+    display: none;
+  }
+  
+  .image-card {
+    page-break-inside: avoid;
+    margin-bottom: 20px;
+  }
+  
+  header {
+    border-bottom: 2px solid #000;
+  }
+}
+
+/* Lazy loading placeholder */
+.image-placeholder {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-placeholder {
+    animation: none;
+    background: #f0f0f0;
+  }
+}
+
+/* ============ END ADDITIONAL OPTIMIZATIONS ============ */

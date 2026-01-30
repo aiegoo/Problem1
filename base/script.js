@@ -389,8 +389,282 @@ function reObserveLazyImages() {
 
 // ============ END STEP 6 ============
 
+// ============ ADDITIONAL OPTIMIZATION GOALS ============
+
+// 1. 반응형 디자인 검증
+function initializeResponsiveDesign() {
+  // Add viewport meta tag if not present
+  if (!document.querySelector('meta[name="viewport"]')) {
+    const viewport = document.createElement('meta');
+    viewport.name = 'viewport';
+    viewport.content = 'width=device-width, initial-scale=1.0';
+    document.head.appendChild(viewport);
+  }
+  
+  // Monitor screen size changes and adjust layout
+  window.addEventListener('resize', handleScreenResize);
+  handleScreenResize(); // Initial check
+}
+
+function handleScreenResize() {
+  const width = window.innerWidth;
+  const container = document.getElementById('imageContainer');
+  
+  // Adjust grid layout based on screen size
+  if (width <= 768) {
+    container.style.gridTemplateColumns = '1fr'; // Mobile: 1 column
+  } else if (width <= 1024) {
+    container.style.gridTemplateColumns = 'repeat(2, 1fr)'; // Tablet: 2 columns
+  } else {
+    container.style.gridTemplateColumns = 'repeat(3, 1fr)'; // Desktop: 3 columns
+  }
+}
+
+// 2. 접근성(A11y) 개선
+function initializeAccessibility() {
+  // Add ARIA labels and roles
+  const searchForm = document.getElementById('search-form');
+  const searchInput = searchForm.querySelector('input[type="text"]');
+  const imageContainer = document.getElementById('imageContainer');
+  
+  // Enhance search accessibility
+  searchInput.setAttribute('aria-label', '이미지 검색');
+  searchInput.setAttribute('aria-describedby', 'search-help');
+  
+  // Add search help text
+  const searchHelp = document.createElement('div');
+  searchHelp.id = 'search-help';
+  searchHelp.className = 'sr-only';
+  searchHelp.textContent = '이미지 제목 또는 설명으로 검색할 수 있습니다. 여러 단어는 공백으로 구분하세요.';
+  searchForm.appendChild(searchHelp);
+  
+  // Add main content role
+  imageContainer.setAttribute('role', 'main');
+  imageContainer.setAttribute('aria-label', '여행 사진 갤러리');
+  
+  // Add keyboard navigation support
+  addKeyboardNavigation();
+}
+
+function addKeyboardNavigation() {
+  // Enable keyboard navigation for images
+  document.addEventListener('keydown', (event) => {
+    if (event.target.classList.contains('image-card')) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        const img = event.target.querySelector('img');
+        if (img) {
+          handleImageClick({ target: img });
+        }
+      }
+    }
+  });
+  
+  // Make image cards focusable
+  const updateImageCardAccessibility = () => {
+    const imageCards = document.querySelectorAll('.image-card');
+    imageCards.forEach((card, index) => {
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', `이미지 ${index + 1}: ${card.querySelector('h3').textContent} - 클릭하여 제목 복사`);
+    });
+  };
+  
+  // Update accessibility after content changes
+  const observer = new MutationObserver(updateImageCardAccessibility);
+  observer.observe(imageContainer, { childList: true, subtree: true });
+  updateImageCardAccessibility();
+}
+
+// 3. 에러 처리 강화
+function initializeEnhancedErrorHandling() {
+  // Global error handler
+  window.addEventListener('error', handleGlobalError);
+  window.addEventListener('unhandledrejection', handleUnhandledRejection);
+  
+  // Network status monitoring
+  window.addEventListener('online', handleOnline);
+  window.addEventListener('offline', handleOffline);
+  
+  // Initial network status check
+  if (!navigator.onLine) {
+    showNetworkStatus(false);
+  }
+}
+
+function handleGlobalError(event) {
+  console.error('Global error:', event.error);
+  showErrorNotification('예상치 못한 오류가 발생했습니다. 페이지를 새로고침해 주세요.');
+}
+
+function handleUnhandledRejection(event) {
+  console.error('Unhandled promise rejection:', event.reason);
+  showErrorNotification('데이터 로딩 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.');
+}
+
+function handleOffline() {
+  showNetworkStatus(false);
+}
+
+function handleOnline() {
+  showNetworkStatus(true);
+  // Retry failed operations
+  if (appState.originalImages.length === 0) {
+    initializeApp();
+  }
+}
+
+function showNetworkStatus(isOnline) {
+  const statusDiv = document.getElementById('network-status') || createNetworkStatusDiv();
+  
+  if (isOnline) {
+    statusDiv.textContent = '인터넷 연결이 복구되었습니다.';
+    statusDiv.className = 'network-status online';
+    setTimeout(() => statusDiv.remove(), 3000);
+  } else {
+    statusDiv.textContent = '인터넷 연결이 끊어졌습니다. 일부 기능이 제한될 수 있습니다.';
+    statusDiv.className = 'network-status offline';
+  }
+}
+
+function createNetworkStatusDiv() {
+  const statusDiv = document.createElement('div');
+  statusDiv.id = 'network-status';
+  statusDiv.style.cssText = `
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    padding: 10px; text-align: center; font-weight: bold;
+  `;
+  document.body.appendChild(statusDiv);
+  return statusDiv;
+}
+
+function showErrorNotification(message) {
+  const notification = document.createElement('div');
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed; top: 20px; right: 20px; z-index: 1001;
+    background: #f44336; color: white; padding: 15px; border-radius: 4px;
+    max-width: 300px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  `;
+  document.body.appendChild(notification);
+  
+  setTimeout(() => notification.remove(), 5000);
+}
+
+// 4. 성능 측정 및 최적화
+function initializePerformanceMonitoring() {
+  // Performance timing measurement
+  if ('performance' in window) {
+    measureInitialLoadTime();
+    monitorScrollPerformance();
+    monitorMemoryUsage();
+  }
+  
+  // Image loading performance
+  let imageLoadTimes = [];
+  
+  const originalLoadImage = loadImage;
+  loadImage = function(img) {
+    const startTime = performance.now();
+    
+    // Enhance original function with timing
+    const originalOnLoad = img.onload;
+    img.onload = function() {
+      const loadTime = performance.now() - startTime;
+      imageLoadTimes.push(loadTime);
+      
+      // Log performance metrics periodically
+      if (imageLoadTimes.length % 5 === 0) {
+        const avgLoadTime = imageLoadTimes.reduce((a, b) => a + b, 0) / imageLoadTimes.length;
+        console.log(`Image loading performance - Average: ${avgLoadTime.toFixed(2)}ms`);
+      }
+      
+      if (originalOnLoad) originalOnLoad.call(this);
+    };
+    
+    return originalLoadImage.call(this, img);
+  };
+}
+
+function measureInitialLoadTime() {
+  window.addEventListener('load', () => {
+    const loadTime = performance.now();
+    console.log(`Initial page load time: ${loadTime.toFixed(2)}ms`);
+    
+    // Log performance metrics
+    if (performance.getEntriesByType) {
+      const navigation = performance.getEntriesByType('navigation')[0];
+      if (navigation) {
+        console.log('Performance metrics:', {
+          domContentLoaded: navigation.domContentLoadedEventEnd - navigation.navigationStart,
+          loadComplete: navigation.loadEventEnd - navigation.navigationStart,
+          firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime || 'N/A'
+        });
+      }
+    }
+  });
+}
+
+function monitorScrollPerformance() {
+  let scrollStartTime;
+  let frameCount = 0;
+  
+  const measureFPS = () => {
+    frameCount++;
+    requestAnimationFrame(measureFPS);
+  };
+  
+  window.addEventListener('scroll', () => {
+    if (!scrollStartTime) {
+      scrollStartTime = performance.now();
+      frameCount = 0;
+      measureFPS();
+      
+      setTimeout(() => {
+        const duration = (performance.now() - scrollStartTime) / 1000;
+        const fps = frameCount / duration;
+        if (fps < 50) {
+          console.warn(`Scroll performance warning: ${fps.toFixed(1)} FPS`);
+        }
+        scrollStartTime = null;
+      }, 1000);
+    }
+  });
+}
+
+function monitorMemoryUsage() {
+  if (performance.memory) {
+    setInterval(() => {
+      const memory = performance.memory;
+      const usedMB = (memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+      const totalMB = (memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
+      
+      console.log(`Memory usage: ${usedMB}MB / ${totalMB}MB`);
+      
+      // Warning if memory usage is high
+      if (memory.usedJSHeapSize / memory.totalJSHeapSize > 0.9) {
+        console.warn('High memory usage detected');
+      }
+    }, 30000); // Check every 30 seconds
+  }
+}
+
+// Initialize all optimization features
+function initializeOptimizations() {
+  initializeResponsiveDesign();
+  initializeAccessibility();
+  initializeEnhancedErrorHandling();
+  initializePerformanceMonitoring();
+}
+
+// ============ END ADDITIONAL OPTIMIZATIONS ============
+
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize optimization features first
+  initializeOptimizations();
+  
+  // Initialize main app functionality
   initializeApp();
   initializeSearch();
   initializeImageCopy();
