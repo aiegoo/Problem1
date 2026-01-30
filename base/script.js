@@ -64,6 +64,9 @@ function renderImageCards(images) {
   
   const cardsHTML = images.map(createImageCard).join('');
   imageContainer.innerHTML = cardsHTML;
+  
+  // Re-observe lazy images after rendering new content
+  setTimeout(() => reObserveLazyImages(), 100);
 }
 
 // Initialize the application
@@ -309,6 +312,83 @@ function initializeLikes() {
 
 // ============ END STEP 5 ============
 
+// ============ STEP 6: LAZY LOADING SYSTEM ============
+
+// Intersection Observer for lazy loading
+let lazyImageObserver;
+
+// Initialize lazy loading with Intersection Observer
+function initializeLazyLoading() {
+  // Check if Intersection Observer is supported
+  if ('IntersectionObserver' in window) {
+    lazyImageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          loadImage(img);
+          lazyImageObserver.unobserve(img);
+        }
+      });
+    }, {
+      // Optimized for 1280x720 viewport
+      threshold: 0.1,
+      rootMargin: '100px' // Preload for better UX
+    });
+
+    // Initial observation after a short delay
+    setTimeout(() => observeLazyImages(), 500);
+  } else {
+    // Fallback: load all images immediately if Intersection Observer not supported
+    loadAllImagesImmediately();
+  }
+}
+
+// Observe all images with lazy class
+function observeLazyImages() {
+  const lazyImages = document.querySelectorAll('img.lazy');
+  lazyImages.forEach(img => {
+    lazyImageObserver.observe(img);
+  });
+}
+
+// Load actual image and remove lazy class
+function loadImage(img) {
+  // Set actual src from data-src
+  if (img.dataset.src) {
+    img.src = img.dataset.src;
+    
+    // Add loading transition
+    img.onload = () => {
+      img.classList.remove('lazy');
+      img.classList.add('loaded');
+    };
+    
+    img.onerror = () => {
+      console.error('Failed to load image:', img.dataset.src);
+      img.classList.remove('lazy');
+      img.classList.add('error');
+    };
+  }
+}
+
+// Fallback: load all images immediately
+function loadAllImagesImmediately() {
+  const lazyImages = document.querySelectorAll('img.lazy');
+  lazyImages.forEach(loadImage);
+}
+
+// Re-observe lazy images after new content is added (for search functionality)
+function reObserveLazyImages() {
+  if (lazyImageObserver) {
+    const lazyImages = document.querySelectorAll('img.lazy');
+    lazyImages.forEach(img => {
+      lazyImageObserver.observe(img);
+    });
+  }
+}
+
+// ============ END STEP 6 ============
+
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
@@ -316,4 +396,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeImageCopy();
   initializeComments();
   initializeLikes();
+  initializeLazyLoading();
 });
