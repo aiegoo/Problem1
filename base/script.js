@@ -267,10 +267,53 @@ function initializeComments() {
 
 // ============ END STEP 4 ============
 
+// ============ STEP 5: LIKE SYSTEM ============
+
+// Handle like button clicks
+function handleLikeClick(event) {
+  const button = event.target;
+  if (button.classList.contains('like-btn')) {
+    const imageCard = button.closest('.image-card');
+    const imageId = parseInt(imageCard.dataset.id);
+    
+    const currentLikes = appState.likes[imageId] || 0;
+    
+    if (currentLikes >= 5) {
+      alert('하나의 이미지에는 5번의 좋아요만 누를 수 있습니다.');
+      return;
+    }
+    
+    // Increment likes count
+    appState.likes[imageId] = currentLikes + 1;
+    
+    // Update button display
+    updateLikeButton(imageId);
+  }
+}
+
+// Update like button display for specific image
+function updateLikeButton(imageId) {
+  const imageCard = document.querySelector(`.image-card[data-id="${imageId}"]`);
+  if (!imageCard) return;
+  
+  const likeButton = imageCard.querySelector('.like-btn');
+  const currentLikes = appState.likes[imageId] || 0;
+  
+  likeButton.textContent = `Likes: ${currentLikes}`;
+}
+
+// Initialize like system
+function initializeLikes() {
+  imageContainer.addEventListener('click', handleLikeClick);
+}
+
+// ============ END STEP 5 ============
+
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
   initializeSearch();
   initializeImageCopy();
   initializeComments();
+  initializeLikes();
 });
