@@ -1,0 +1,16 @@
+{
+  "name": "fe-6",
+  "version": "1.0.0",
+  "description": "여행 사진 갤러리 사이트 구축하기",
+  "main": "script.js",
+  "scripts": {
+    "start": "serve base/",
+    "test": "npx playwright test tests/IntegrationTests.spec.js"
+  },
+  "author": "programmers.co.kr",
+  "license": "ISC",
+  "dependencies": {
+    "@playwright/test": "1.37.1",
+    "serve": "^13.0.2"
+  }
+}

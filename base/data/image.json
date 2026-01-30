@@ -1,0 +1,106 @@
+[
+  {
+    "id": 1,
+    "title": "Image 1",
+    "description": "Description of image 1",
+    "url": "./data/images/image1.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 2,
+    "title": "Image 2",
+    "description": "Description of image 2",
+    "url": "./data/images/image2.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 3,
+    "title": "Image 3",
+    "description": "Description of image 3",
+    "url": "./data/images/image3.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 4,
+    "title": "Image 4",
+    "description": "Description of image 4",
+    "url": "./data/images/image4.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 5,
+    "title": "Image 5",
+    "description": "Description of image 5",
+    "url": "./data/images/image5.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 6,
+    "title": "Image 6",
+    "description": "Description of image 6",
+    "url": "./data/images/image6.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 7,
+    "title": "Image 7",
+    "description": "Description of image 7",
+    "url": "./data/images/image7.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 8,
+    "title": "Image 8",
+    "description": "Description of image 8",
+    "url": "./data/images/image8.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 9,
+    "title": "Image 9",
+    "description": "Description of image 9",
+    "url": "./data/images/image9.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 10,
+    "title": "Image 10",
+    "description": "Description of image 10",
+    "url": "./data/images/image10.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 11,
+    "title": "Image 11",
+    "description": "Description of image 11",
+    "url": "./data/images/image11.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 12,
+    "title": "Image 12",
+    "description": "Description of image 12",
+    "url": "./data/images/image12.jpg",
+    "likes": 0,
+    "comments": []
+  },
+  {
+    "id": 13,
+    "title": "Image 13",
+    "description": "Description of image 13",
+    "url": "./data/images/image13.jpg",
+    "likes": 0,
+    "comments": []
+  }
+]
