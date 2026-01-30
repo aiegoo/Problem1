@@ -126,8 +126,65 @@ function initializeSearch() {
 
 // ============ END STEP 2 ============
 
+// ============ STEP 3: IMAGE COPY FUNCTIONALITY ============
+
+// Handle image click for copying title to clipboard
+function handleImageClick(event) {
+  const img = event.target;
+  if (img.tagName === 'IMG') {
+    const imageCard = img.closest('.image-card');
+    const imageId = parseInt(imageCard.dataset.id);
+    const imageData = appState.originalImages.find(image => image.id === imageId);
+    
+    if (imageData) {
+      copyToClipboard(imageData.title);
+    }
+  }
+}
+
+// Copy text to clipboard using modern API with fallback
+async function copyToClipboard(text) {
+  try {
+    // Modern clipboard API (preferred)
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(text);
+      alert(`'${text}'가 클립보드에 복사되었습니다.`);
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.opacity = '0';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        alert(`'${text}'가 클립보드에 복사되었습니다.`);
+      } catch (err) {
+        console.error('Failed to copy to clipboard:', err);
+        alert('클립보드 복사에 실패했습니다.');
+      } finally {
+        document.body.removeChild(textArea);
+      }
+    }
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    alert('클립보드 복사에 실패했습니다.');
+  }
+}
+
+// Initialize image copy functionality
+function initializeImageCopy() {
+  imageContainer.addEventListener('click', handleImageClick);
+}
+
+// ============ END STEP 3 ============
+
 // Start the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   initializeApp();
   initializeSearch();
+  initializeImageCopy();
 });
