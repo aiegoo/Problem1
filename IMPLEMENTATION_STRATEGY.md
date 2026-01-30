@@ -7,6 +7,8 @@ This document outlines the implementation strategy for building a travel photo g
 - **Source**: `./data/image.json` contains 13 image objects
 - **Image Object**: `{ id, title, description, url, likes, comments }`
 - **State Management**: Track likes and comments in memory during session
+- **Image Assets**: All images are high-resolution (3000+ pixels), ranging from 3178×2084 to 5304×7952
+- **Lazy Placeholder**: `lazy-image.jpg` (4000×6000) available for loading states
 
 ## Implementation Steps
 
@@ -20,7 +22,7 @@ This document outlines the implementation strategy for building a travel photo g
 - Each card structure:
   ```html
   <div class="image-card" data-id="{id}">
-    <img data-src="{url}" src="{url}" alt="{title}" class="lazy" />
+    <img data-src="{url}" src="./data/images/lazy-image.jpg" alt="{title}" class="lazy" />
     <h3>{title}</h3>
     <p>{description}</p>
     <button class="like-btn">Likes: {likes}</button>
@@ -118,27 +120,39 @@ return `(${month}월 ${date}일 ${hours}:${minutes})`;
 **Objective**: Load images only when they enter viewport (1280x720 window)
 
 **Strategy**:
-- Initially set all images with `lazy` class and placeholder `data-src`
+- Initially set all images with `lazy` class and use `lazy-image.jpg` as placeholder
 - Use Intersection Observer API to detect when images enter viewport
-- Load actual image when observer triggers
-- Remove `lazy` class and set `src` attribute
+- Given image sizes (3178×2084 to 5304×7952), lazy loading is critical for performance
+- Load actual high-resolution image when observer triggers
+- Remove `lazy` class and set `src` attribute, maintaining aspect ratio
 
 **Key Functions**:
 - `initLazyLoading()` - Set up Intersection Observer
-- `loadImage(img)` - Load actual image source
-- Observer options for 1280x720 viewport considerations
+- `loadImage(img)` - Load actual image source and handle transitions
+- Observer options optimized for large images and 1280x720 viewport
 
 **Intersection Observer Setup**:
 ```javascript
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      loadImage(entry.target);
-      observer.unobserve(entry.target);
+      const img = entry.target;
+      img.src = img.dataset.src;
+      img.classList.remove('lazy');
+      observer.unobserve(img);
     }
   });
-}, { threshold: 0.1 });
+}, { 
+  threshold: 0.1,
+  rootMargin: '50px' // Preload slightly before entering viewport
+});
 ```
+
+**Performance Considerations**:
+- Use `lazy-image.jpg` as consistent placeholder for all cards
+- Implement smooth transitions when images load
+- Consider image compression/optimization for web display
+- Prioritize above-the-fold images for immediate loading
 
 ## State Management Strategy
 
@@ -187,18 +201,27 @@ const appState = {
 ## Performance Considerations
 
 ### Lazy Loading
-- Reduce initial page load time
-- Optimize for 1280x720 viewport
-- Use placeholder images or loading states
+- **Critical for performance**: Images range from 3178×2084 to 5304×7952 pixels
+- Use `lazy-image.jpg` as consistent placeholder to reduce initial load
+- Optimize for 1280x720 viewport with appropriate preloading margins
+- Implement progressive loading with smooth transitions
 
 ### DOM Manipulation
-- Minimize DOM queries by caching elements
+- Cache elements to minimize DOM queries
 - Use document fragments for multiple insertions
 - Batch DOM updates where possible
+- Consider CSS transforms for smooth image transitions
 
 ### Memory Management
 - Clean up event listeners if needed
 - Avoid memory leaks in observer patterns
+- Dispose of large image objects when appropriate
+
+### Image Optimization
+- High-resolution images (3000+ pixels) will be significantly downsized for web display
+- Consider implementing responsive image loading based on viewport size
+- Use CSS to maintain aspect ratios during loading transitions
+- Implement error handling for failed image loads
 
 ## Implementation Order
 1. Set up basic data loading and card rendering
