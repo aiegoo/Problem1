@@ -56,6 +56,12 @@ function createImageCard(imageData) {
 
 // Render all image cards to the container
 function renderImageCards(images) {
+  if (images.length === 0) {
+    // Show blank screen when no results (requirement 3)
+    imageContainer.innerHTML = '';
+    return;
+  }
+  
   const cardsHTML = images.map(createImageCard).join('');
   imageContainer.innerHTML = cardsHTML;
 }
@@ -105,13 +111,11 @@ function handleSearch(event) {
   renderImageCards(appState.currentImages);
 }
 
-// Filter images based on search terms (title OR description contains ALL terms)
+// Filter images based on search terms (ALL terms must be found in title OR description combined)
 function filterImages(images, searchTerms) {
   return images.filter(image => {
-    return searchTerms.every(term => 
-      image.title.toLowerCase().includes(term) ||
-      image.description.toLowerCase().includes(term)
-    );
+    const combinedText = `${image.title} ${image.description}`.toLowerCase();
+    return searchTerms.every(term => combinedText.includes(term));
   });
 }
 
